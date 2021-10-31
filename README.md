@@ -6,11 +6,7 @@
 
 ---
 
-# DataAnaytics_London
-
----
-
-# Covid-19 Mobility Tracker
+# DataAnaytics_London: Covid-19 Mobility Tracker
 
 A mobility response tracker for systematically assessing how mobility trends have evolved over time with spread of the pandemic. 
 
