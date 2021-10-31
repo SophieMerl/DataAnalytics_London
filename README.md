@@ -1,8 +1,8 @@
 ## To Dos:
 
-- Connect SQL Database
-- Find qdequate method for Index creation, e.g. SciKit Learn
-- Have a look at: https://www.bsg.ox.ac.uk/research/research-projects/covid-19-government-response-tracker & https://github.com/OxCGRT/covid-policy-tracker
+- [ ] Connect SQL Database
+- [ ] Find qdequate method for Index creation, e.g. SciKit Learn
+- [ ] Have a look at: https://www.bsg.ox.ac.uk/research/research-projects/covid-19-government-response-tracker & https://github.com/OxCGRT/covid-policy-tracker
 
 ---
 
