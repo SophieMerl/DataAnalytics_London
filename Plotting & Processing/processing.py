@@ -3,6 +3,10 @@ import numpy as np
 import io
 import requests
 import torch
+import torch.optim as optim
+import torch.nn as nn
+from torchviz import make_dot
+import matplotlib.pyplot as plt
 
 
 device = 'cpu'
@@ -17,28 +21,45 @@ url_cvd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/mast
 download_cvd = requests.get(url_cvd).content
 df_cvd = pd.read_csv(io.StringIO(download_cvd.decode('utf-8')))
 
-x_train = torch.from_numpy(df_lnd[1][:len(df_lnd[]) * 0.8]).float().to(device)
-x_test = torch.from_numpy().float().to(device)
+# x_train = torch.tensor(df_lnd['retail_recreation_city'][:int(len(df_lnd['retail_recreation_city']) * 0.8)].values).float().to(device)
+x_train = torch.tensor(df_lnd['retail_recreation_city'][:500].values).float().to(device)
+x_test = torch.tensor(df_lnd['retail_recreation_city'][int(len(df_lnd['retail_recreation_city']) * 0.8):].values).float().to(device)
 
-y_train = torch.from_numpy().float().to(device)
-y_test = torch.from_numpy().float().to(device)
+# y_train = torch.tensor(df_cvd['newCasesBySpecimenDate'][:int(len(df_cvd['newCasesBySpecimenDate']) * 0.8)].values).float().to(device)
+y_train = torch.tensor(df_cvd['newCasesBySpecimenDate'][:500].rolling(min_periods=1, window=14).sum().values).float().to(device)
+y_test = torch.tensor(df_cvd['newCasesBySpecimenDate'][:int(len(df_cvd['newCasesBySpecimenDate']) * 0.8)].values).float().to(device)
 
 
-lr = 1.3e-1
+
+class ModelClass(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.a = nn.Parameter(torch.randn(1, requires_grad=True, dtype=torch.float))
+        self.b = nn.Parameter(torch.randn(1, requires_grad=True, dtype=torch.float))
+
+    def forward(self, x):
+        return self.a + self.b * x
+
+
+model = ModelClass().to(device)
+lr = 1e-1
+optimizer = optim.SGD(model.parameters(), lr=lr)
+loss_fn = nn.MSELoss(reduction='mean')
 n_epochs = 1000
 
-a = torch.randn(1, dtype=torch.float).to(device)
-b = torch.randn(1, dtype=torch.float).to(device)
-a.requires_grad_()
-b.requires_grad_()
-
 for epoch in range(n_epochs):
-    yhat = a + b * x_train
-    error = y_train - yhat
-    loss = (error ** 2).mean()
+    model.train()
+    yhat = model(x_train)
+    loss = loss_fn(y_train, yhat)
     loss.backward()
-    with torch.no_grad():
-        a -= lr * a.grad
-        b -= lr * b.grad
-    a.grad.zero_()
-    b.grad.zero_()
+    optimizer.step()
+    optimizer.zero_grad()
+
+fig, ax = plt.subplots(figsize=(16, 5))
+plt.style.use("ggplot")
+ax.plot(x_train, y_train,
+        marker="o",
+        color="red",
+        label="Time Span")
+
+plt.show()
