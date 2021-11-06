@@ -30,7 +30,6 @@ y_train = torch.tensor(df_cvd['newCasesBySpecimenDate'][:500].rolling(min_period
 y_test = torch.tensor(df_cvd['newCasesBySpecimenDate'][:int(len(df_cvd['newCasesBySpecimenDate']) * 0.8)].values).float().to(device)
 
 
-
 class ModelClass(nn.Module):
     def __init__(self):
         super().__init__()
@@ -54,12 +53,3 @@ for epoch in range(n_epochs):
     loss.backward()
     optimizer.step()
     optimizer.zero_grad()
-
-fig, ax = plt.subplots(figsize=(16, 5))
-plt.style.use("ggplot")
-ax.plot(x_train, y_train,
-        marker="o",
-        color="red",
-        label="Time Span")
-
-plt.show()
