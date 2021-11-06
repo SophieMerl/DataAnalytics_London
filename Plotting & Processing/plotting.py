@@ -1,16 +1,19 @@
 import pandas as pd
+import io
+import requests
 import matplotlib.pyplot as plt
 
+url_lnd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/master/data/London_301021.csv"
+download_lnd = requests.get(url_lnd).content
+df_ldn = pd.read_csv(io.StringIO(download_lnd.decode('utf-8')))
 
-input = pd.read_csv("/Users/dennisblaufuss/Desktop/London_251021.csv")
-
-hood_list = [column[6:] for column in input.columns if "parks_" in column]
+hood_list = [column[6:] for column in df_ldn.columns if "parks_" in column]
 
 cluster_list = ["retail_recreation_", "grocery_pharmacy_recreation_", "parks_", "transit_", "workplaces_", "residential_"]
 df_list = []
 
 for cluster in cluster_list:
-    temp_df = input[[column for column in input.columns if cluster in column or column == 'Date']]
+    temp_df = df_ldn[[column for column in df_ldn.columns if cluster in column or column == 'Date']]
     df_list.append(temp_df)
     # Shape of every single one is 669 X 31
 
