@@ -9,7 +9,7 @@ df_ldn = pd.read_csv(io.StringIO(download_lnd.decode('utf-8')))
 
 hood_list = [column[6:] for column in df_ldn.columns if "parks_" in column]
 
-cluster_list = ["retail_recreation_", "grocery_pharmacy_recreation_", "parks_", "transit_", "workplaces_", "residential_"]
+cluster_list = ["retail_recreation_", "grocery_pharmacy_", "parks_", "transit_", "workplaces_", "residential_"]
 df_list = []
 
 for cluster in cluster_list:
