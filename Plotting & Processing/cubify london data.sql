@@ -1,17 +1,13 @@
 /****** Script for SelectTopNRows command from SSMS  ******/
 SELECT *
-FROM [test1].[dbo].[London_251021] x
+FROM [test1].[dbo].[London_301021] x
 INNER JOIN Datum d on DATEPART(year, x.[Date]) * 10000 + DATEPART(month, x.[Date]) * 100 + DATEPART(day, x.[Date]) = d.DatumID
 
-/*CREATE TABLE fact.travel_london (
-	datumid int,
-	boroughid int,
-	retail_recreation float,
-	grocery_pharmacy*/
+exec sp_rename 'test1.dbo.London_301021.transit', 'ttransit'
 
 DROP TABLE IF EXISTS #column_names
 SELECT * into #column_names
-FROM test1.sys.all_columns where object_id = (SELECT TOP 1 object_id FROM test1.sys.tables where name = 'London_251021')
+FROM test1.sys.all_columns where object_id = (SELECT TOP 1 object_id FROM test1.sys.tables where name = 'London_301021')
 
 DECLARE @prefix nvarchar(100) = 'retail_recreation_%'
 
@@ -30,7 +26,7 @@ IF NOT (SELECT MAX(amount) - MIN(amount)
 					count(*) amount
 			FROM test1.sys.all_columns c
 			INNER JOIN test1.dbo.Borough b ON c.name like CONCAT('%', '_', b.name)
-			where object_id = (SELECT TOP 1 object_id FROM test1.sys.tables where name = 'London_251021')
+			where object_id = (SELECT TOP 1 object_id FROM test1.sys.tables where name = 'London_301021')
 			group by left(c.name, len(c.name) - (len(b.name) + 1))
 		) kpi
 		) = 0
@@ -47,7 +43,7 @@ SELECT	--c.name,
 INTO #kpi
 FROM test1.sys.all_columns c
 INNER JOIN test1.dbo.Borough b ON c.name like CONCAT('%', '_', b.name)
-where object_id = (SELECT TOP 1 object_id FROM test1.sys.tables where name = 'London_251021')
+where object_id = (SELECT TOP 1 object_id FROM test1.sys.tables where name = 'London_301021')
 group by left(c.name, len(c.name) - (len(b.name) + 1))
 
 DECLARE @kpi_list nvarchar(255)
@@ -66,7 +62,7 @@ DECLARE @unpivot_code nvarchar(max) = N''
 SELECT @unpivot_code = CONCAT(@unpivot_code, 
 N'SELECT date, RIGHT(', (SELECT kpi_name FROM #kpi WHERE id = 1), N'_Borough, charindex(''_'', reverse(', (SELECT kpi_name FROM #kpi WHERE id = 1), N'_Borough) + ''_'') - 1) as Borough, ', @kpi_list,N'
 into #unpivoted
-FROM (SELECT * FROM London_251021) p
+FROM (SELECT * FROM London_301021) p
 ')
 
 DECLARE @i int = 1
@@ -122,10 +118,12 @@ SET @unpivot_code = CONCAT(@unpivot_code, N'
 	ORDER BY date
 ')
 
+SELECT(@unpivot_code)
+
 exec(@unpivot_code)
 
+DROP TABLE IF EXISTS fact_table_modify
 SELECT * 
 INTO fact_table_modify
 FROM ##fact_table
 ORDER BY DatumID, BoroughID
-
