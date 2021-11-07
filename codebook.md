@@ -1,6 +1,6 @@
 # Variables
 
-***Code book for considered variables***
+***Overview of considered variables***
 
 The Covid-19 Mobility Index ([GitHub repo](https://github.com/SophieMerl/DataAnaytics_London)), tracks mobility trends across Covid-19 development.
 
