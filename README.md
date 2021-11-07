@@ -11,3 +11,5 @@ We collected publicly available mobility data from Google (https://www.google.co
 The prepared data sets were prepared using SQL (LINK). The last time of data collection was 24 October 2021.
 
 ---
+
+![img](https://github.com/SophieMerl/DataAnaytics_London/tree/create-folder/images/London_pic.jpg)
