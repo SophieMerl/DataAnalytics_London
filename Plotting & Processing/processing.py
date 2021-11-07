@@ -6,7 +6,6 @@ import torch
 import torch.optim as optim
 import torch.nn as nn
 from torchviz import make_dot
-import matplotlib.pyplot as plt
 
 
 device = 'cpu'
@@ -37,7 +36,7 @@ class ModelClass(nn.Module):
         self.b = nn.Parameter(torch.randn(1, requires_grad=True, dtype=torch.float))
 
     def forward(self, x):
-        return self.a + self.b * x
+        return self.a + self.b * np.log(x)
 
 
 model = ModelClass().to(device)
