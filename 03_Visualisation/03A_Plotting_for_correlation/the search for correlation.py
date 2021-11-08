@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 url_lnd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/master/02_Preprocessing/London_cleaned_unpivoted.csv"
 download_lnd = requests.get(url_lnd).content
 df_lnd = pd.read_csv(io.StringIO(download_lnd.decode('utf-8')))
-df_lnd_grouped = df_lnd.groupby('DatumID').mean()  # .iloc[23:620, :]
+df_lnd_grouped = df_lnd.groupby('Date').mean()#.sort_values(by="Date")  # .iloc[23:620, :]
+
 
 url_cvd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/master/02_Preprocessing/Covid_cleaned.csv"
 download_cvd = requests.get(url_cvd).content
@@ -16,7 +17,7 @@ df_cvd = pd.read_csv(io.StringIO(download_cvd.decode('utf-8')))
 # df_cvd = df_cvd.sort_values(by="Date").iloc[30:620, :]
 df_cvd["newDeaths28DaysByDeathDate"] = df_cvd["newDeaths28DaysByDeathDate"].rolling(min_periods=1, window=14).sum()
 
-category_list = ["retail_recreation", "grocery_pharmacy_recreation", "parks", "transit", "workplaces", "residential"]
+category_list = ["retail_recreation", "grocery_pharmacy", "parks", "transit", "workplaces", "residential"]
 
 i = 0
 for category in category_list:
