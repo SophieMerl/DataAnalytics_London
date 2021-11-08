@@ -4,12 +4,12 @@ import io
 import requests
 import matplotlib.pyplot as plt
 
-url_lnd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/master/data/London_cleaned_unpivoted.csv"
+url_lnd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/master/02_Preprocessing/London_cleaned_unpivoted.csv"
 download_lnd = requests.get(url_lnd).content
 df_lnd = pd.read_csv(io.StringIO(download_lnd.decode('utf-8')))
 df_lnd_grouped = df_lnd.groupby('DatumID').mean()  # .iloc[23:620, :]
 
-url_cvd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/master/data/Covid_cleaned.csv"
+url_cvd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/master/02_Preprocessing/Covid_cleaned.csv"
 download_cvd = requests.get(url_cvd).content
 df_cvd = pd.read_csv(io.StringIO(download_cvd.decode('utf-8')))
 # df_cvd["Date"] = df_cvd["Date"].str.replace("-", "")

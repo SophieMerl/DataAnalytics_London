@@ -3,7 +3,7 @@ import io
 import requests
 import matplotlib.pyplot as plt
 
-url_lnd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/master/data/London_cleaned_unpivoted.csv"
+url_lnd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/master/02_Preprocessing/London_cleaned_unpivoted.csv"
 download_lnd = requests.get(url_lnd).content
 df_ldn = pd.read_csv(io.StringIO(download_lnd.decode('utf-8')))
 
@@ -20,7 +20,7 @@ for category in category_list:
     plt.figure(figsize=(16, 5))
     plt.style.use("ggplot")
     for borough in borough_list:
-        plt.plot(df_list[borough_list.index(borough)]["DatumID"], df_list[borough_list.index(borough)][category],
+        plt.plot(df_list[borough_list.index(borough)]["Date"], df_list[borough_list.index(borough)][category],
                  marker=".",
                  color="red",
                  label=str(borough))

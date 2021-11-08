@@ -13,12 +13,12 @@ device = 'cpu'
 # device = 'cuda' if torch.cuda.is_available() else 'cpu'
 # You may want to turn this one on if you don't have a mac
 
-url_lnd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/master/data/London_cleaned_unpivoted.csv"
+url_lnd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/master/02_Preprocessing/London_cleaned_unpivoted.csv"
 download_lnd = requests.get(url_lnd).content
 df_lnd = pd.read_csv(io.StringIO(download_lnd.decode('utf-8')))
 df_lnd_grouped = df_lnd.groupby('DatumID').mean()
 
-url_cvd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/master/data/Covid_cleaned.csv"
+url_cvd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/master/02_Preprocessing/Covid_cleaned.csv"
 download_cvd = requests.get(url_cvd).content
 df_cvd = pd.read_csv(io.StringIO(download_cvd.decode('utf-8')))
 df_cvd["newDeaths28DaysByDeathDate"] = df_cvd["newDeaths28DaysByDeathDate"].rolling(min_periods=1, window=14).sum()
