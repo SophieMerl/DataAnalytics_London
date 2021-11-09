@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Oct 25 13:19:09 2021
-
-@author: sophiemerl
-"""
-
 import os
 import pandas as pd
 import numpy as np
@@ -13,11 +5,6 @@ from functools import reduce
 
 os.chdir("/Users/sophiemerl/Desktop/Data Analytics in Business/PythonProject")
 path = os.getcwd()
-
-
-
-
-
 
 ######### APPLE
 file = "applemobilitytrends-2021-10-23.csv"
@@ -360,13 +347,11 @@ citymapper['Date'] = pd.to_datetime(citymapper['Date'], format='%Y/%m/%d')
 Tube = citymapper[citymapper["source"] == "TfL Tube"].drop("roll", axis=1).drop("activity", axis=1).drop("source", axis=1).rename(columns={"value": "Tube"})
 Bus = citymapper[citymapper["source"] == "TfL Bus"].drop("roll", axis=1).drop("activity", axis=1).drop("source", axis=1).rename(columns={"value": "Bus"})
 Citymapper = citymapper[citymapper["source"] == "Citymapper"].drop("roll", axis=1).drop("activity", axis=1).drop("source", axis=1).rename(columns={"value": "Citymapper"})
-#Google_transit = citymapper[citymapper["source"] == "Google"].drop("roll", axis=1).drop("activity", axis=1).drop("source", axis=1).rename(columns={"value": "Google_Transit"})
 
 tfl_citymapper = [Tube, Bus, Citymapper] #Google_transit already in google_boroughs
 
 citymapper_public = reduce(lambda  left,right: pd.merge(left,right,on=['Date'],
                                             how='outer'), tfl_citymapper).replace(np.nan, -999)
-
 
 ######### MERGE
 
@@ -379,8 +364,7 @@ data_sets = [google_boroughs,
 data_sets_merged = reduce(lambda  left,right: pd.merge(left,right,on=['Date'],
                                             how='outer'), data_sets)
 
-
-data_sets_merged.to_csv(r'London_301021_v2.csv')
+data_sets_merged.to_csv(r'London_301021.csv')
 
 
 

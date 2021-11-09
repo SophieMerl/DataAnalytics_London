@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Oct 25 20:40:47 2021
-
-@author: sophiemerl
-"""
-
 import os
 import pandas as pd
 import numpy as np
@@ -46,7 +38,7 @@ testing_positivity = testing_positivity.drop(['areaName',
 testing_positivity = testing_positivity.replace(np.nan, -999).rename(columns={"date": "Date"})
 testing_positivity['Date'] = pd.to_datetime(testing_positivity['Date'], format='%Y-%m-%d')
 
-######### Healthcare
+######### HEALTHCARE
 file1 = "healthcare_patientsventilation.csv"
 file2 = "healthcare_patientshospital.csv"
 file3 = "healthcare_patientsadmitted.csv"
@@ -56,13 +48,16 @@ patients_hospital = pd.read_csv(file2)
 patients_admitted = pd.read_csv(file3)
 ventilation = ventilation.drop(['areaName',
                                 'areaType',
-                                'areaCode'], axis=1).replace(np.nan, -999).rename(columns={"date": "Date"})
+                                'areaCode'],
+                               axis=1).replace(np.nan, -999).rename(columns={"date": "Date"})
 patients_hospital = patients_hospital.drop(['areaName',
-                                'areaType',
-                                'areaCode'], axis=1).replace(np.nan, -999).rename(columns={"date": "Date"})
+                                            'areaType',
+                                            'areaCode'],
+                                           axis=1).replace(np.nan, -999).rename(columns={"date": "Date"})
 patients_admitted = patients_admitted.drop(['areaName',
-                                'areaType',
-                                'areaCode'], axis=1).replace(np.nan, -999).rename(columns={"date": "Date"})
+                                   'areaType',
+                                   'areaCode'],
+                                           axis=1).replace(np.nan, -999).rename(columns={"date": "Date"})
 
 healthcare = [ventilation,
               patients_hospital,
@@ -86,7 +81,6 @@ deaths['Date'] = pd.to_datetime(deaths['Date'], format='%Y-%m-%d')
 data_sets = [cases,
              vaccination,
              testing_positivity,
-             
              healthcare,
              deaths]
 
