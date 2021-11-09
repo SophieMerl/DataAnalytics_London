@@ -86,14 +86,12 @@ ax.scatter(np.log(df_cvd["newDeaths28DaysByDeathDate"]), df_lnd_grouped["retail_
             marker="o",
             color="black")
 ax.plot(np.log(df_cvd["newDeaths28DaysByDeathDate"]), linr.predict(np.log(df_cvd["newDeaths28DaysByDeathDate"]).to_numpy().reshape(-1, 1)),
-        marker=".",
         color="red",
-        label="Time Span")
+        label="Model Predictions")
 # ax.plot(df_cvd["newDeaths28DaysByDeathDate"], model(torch.tensor(df_cvd["newDeaths28DaysByDeathDate"].values).detach().numpy()),
 # ax.plot(df_cvd["newDeaths28DaysByDeathDate"], model(df_cvd["newDeaths28DaysByDeathDate"].values),
-#         marker=".",
 #         color="green",
-#         label="Time Span")
+#         label="Model Predictions")
 plt.xlabel("Log of deaths of past 14 days")
 plt.xlim(xmin=0)
 plt.ylabel("Amount Traveled")

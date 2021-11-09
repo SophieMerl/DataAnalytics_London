@@ -7,25 +7,25 @@ url_lnd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/mast
 download_lnd = requests.get(url_lnd).content
 df_ldn = pd.read_csv(io.StringIO(download_lnd.decode('utf-8')))
 
-borough_list = list(range(1, 34))
+url_brh = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/master/02_Preprocessing/boroughs.csv"
+download_brh = requests.get(url_brh).content
+df_brh = pd.read_csv(io.StringIO(download_brh.decode('utf-8')))
 
 category_list = ["retail_recreation", "grocery_pharmacy", "parks", "transit", "workplaces", "residential"]
 df_list = []
 
-for borough in borough_list:
-    temp_df = df_ldn.loc[df_ldn["BoroughID"] == borough]
+for brh_id in df_brh["id"]:
+    temp_df = df_ldn.loc[df_ldn["BoroughID"] == brh_id]
     df_list.append(temp_df)
 
 for category in category_list:
     plt.figure(figsize=(16, 5))
     plt.style.use("ggplot")
-    for borough in borough_list:
-        plt.plot(df_list[borough_list.index(borough)]["Date"], df_list[borough_list.index(borough)][category],
-                 marker=".",
-                 color="red",
-                 label=str(borough))
+    for brh_id in df_brh["id"]:
+        plt.plot(df_list[brh_id - 1]["Date"], df_list[brh_id - 1][category],
+                 color="black",
+                 label=str(df_brh.loc[df_brh["id"] == brh_id]["name"]))
     plt.xlabel("Date")
-    plt.xlim(xmin=0)
     plt.ylabel("Amount Traveled (Indexed)")
     plt.title(str(category))
 plt.show()

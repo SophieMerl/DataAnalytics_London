@@ -24,9 +24,9 @@ for category in category_list:
     plt.figure(figsize=(16, 5))
     plt.style.use("ggplot")
     plt.scatter(np.log(df_cvd["newDeaths28DaysByDeathDate"]), df_lnd_grouped[category_list[i]],  # df_list.index(df)
-                marker="o",
+                marker=".",
                 color="black",
-                label="Time Span")
+                label=str(category) + " in relation in log deaths")
     plt.xlabel("Log of deaths of past 14 days")
     plt.xlim(xmin=0)
     plt.ylabel("Amount Traveled")
