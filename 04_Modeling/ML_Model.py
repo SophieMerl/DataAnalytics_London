@@ -5,19 +5,22 @@ import requests
 import torch
 import torch.optim as optim
 import torch.nn as nn
-import matplotlib.pyplot as plt
 from torchviz import make_dot
+from sklearn.linear_model import LinearRegression
+import matplotlib.pyplot as plt
 
-
+# selecting a device and using it for every storage is essential within pytorch
 device = 'cpu'
 # device = 'cuda' if torch.cuda.is_available() else 'cpu'
-# You may want to turn this one on if you don't have a mac
+# You may want to turn this one on if you don't have a mac with M1
 
+# receiving travel data, formating date & grouping over the boroughs
 url_lnd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/master/02_Preprocessing/London_cleaned_unpivoted.csv"
 download_lnd = requests.get(url_lnd).content
 df_lnd = pd.read_csv(io.StringIO(download_lnd.decode('utf-8')))
 df_lnd_grouped = df_lnd.groupby('Date').mean()
 
+# receiving covid data, formating date & computing the rolling sum over last 14 days
 url_cvd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/master/02_Preprocessing/Covid_cleaned.csv"
 download_cvd = requests.get(url_cvd).content
 df_cvd = pd.read_csv(io.StringIO(download_cvd.decode('utf-8')))
@@ -30,8 +33,8 @@ x_test = torch.tensor(df_cvd["newDeaths28DaysByDeathDate"][int(len(df_cvd["newDe
 y_train = torch.tensor(df_lnd_grouped["retail_recreation"][:int(len(df_lnd_grouped["retail_recreation"]) * 0.8)].values).float().to(device)
 y_test = torch.tensor(df_lnd_grouped["retail_recreation"][int(len(df_lnd_grouped["retail_recreation"]) * 0.8):].values).float().to(device)
 
-
-class ModelClass(nn.Module):
+# utilizing pytorch's conventions & initializing the observed log relationship
+class LogCorModel(nn.Module):
     def __init__(self):
         super().__init__()
         self.a = nn.Parameter(torch.randn(1, requires_grad=True, dtype=torch.float))
@@ -41,12 +44,14 @@ class ModelClass(nn.Module):
         return self.a + self.b * np.log(x)
 
 
-model = ModelClass().to(device)
+# initializing the model and choosing various important parameters
+model = LogCorModel().to(device)
 lr = 3e-2
 optimizer = optim.SGD(model.parameters(), lr=lr)
 loss_fn = nn.MSELoss(reduction='mean')
 n_epochs = 1000
 
+# training the model
 for epoch in range(n_epochs):
     model.train()
     yhat = model(x_train)
@@ -55,6 +60,7 @@ for epoch in range(n_epochs):
     optimizer.step()
     optimizer.zero_grad()
 
+# printing the to computed paramters a and b of trained model
 print(model.state_dict())
 
 # a = torch.randn(1, requires_grad=True, dtype=torch.float, device=device)
@@ -73,18 +79,19 @@ print(model.state_dict())
 #     a.grad.zero_()
 #     b.grad.zero_()
 
-from sklearn.linear_model import LinearRegression
+# double checking with SKlearn package
 linr = LinearRegression()
 linr.fit(np.log(df_cvd["newDeaths28DaysByDeathDate"])[:int(len(df_cvd["newDeaths28DaysByDeathDate"]) * 0.8)].to_numpy().reshape(-1, 1), df_lnd_grouped["retail_recreation"][:int(len(df_lnd_grouped["retail_recreation"]) * 0.8)].to_numpy().reshape(-1, 1),)
 print(linr.intercept_, linr.coef_[0])
 make_dot(loss, params=dict(list(model.named_parameters()))).render("rnn_torchviz", format="png")
 
+# plotting the data with model prediction
 plt.figure(figsize=(16, 5))
 plt.style.use("ggplot")
 ax = plt.axes()
 ax.scatter(np.log(df_cvd["newDeaths28DaysByDeathDate"]), df_lnd_grouped["retail_recreation"],  # df_list.index(df)
-            marker="o",
-            color="black")
+           marker="o",
+           color="black")
 ax.plot(np.log(df_cvd["newDeaths28DaysByDeathDate"]), linr.predict(np.log(df_cvd["newDeaths28DaysByDeathDate"]).to_numpy().reshape(-1, 1)),
         color="red",
         label="Model Predictions")
