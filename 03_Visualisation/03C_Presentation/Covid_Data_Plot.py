@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 #import matplotlib.cbook as cbook
 
-url_cov ="https://raw.githubusercontent.com/SophieMerl/DataAnalytics_London/master/data/London_Covid_301021.csv"
+url_cov ="https://raw.githubusercontent.com/SophieMerl/DataAnalytics_London/master/02_Preprocessing/London_Covid_301021.csv"
 download_cov = requests.get(url_cov).content
 df_cov = pd.read_csv(io.StringIO(download_cov.decode('utf-8')))
 
