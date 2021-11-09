@@ -1,25 +1,17 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Nov  8 11:24:08 2021
-
-@author: sophiemerl
-"""
-
+####### Load packages
 import pandas as pd
 import numpy as np
 import io
 import requests
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-#import matplotlib.cbook as cbook
 
 url_cov ="https://raw.githubusercontent.com/SophieMerl/DataAnalytics_London/master/02_Preprocessing/London_Covid_301021.csv"
 download_cov = requests.get(url_cov).content
 df_cov = pd.read_csv(io.StringIO(download_cov.decode('utf-8')))
 
-#######
-#Cases
+####### Plotting
+##Cases
 df_cov['datetime'] = pd.to_datetime(df_cov['Date'])
 
 fig, ax = plt.subplots()
@@ -44,10 +36,9 @@ fig.autofmt_xdate()
 
 plt.xlabel('Date')
 plt.ylabel('New cases')
-
 plt.show()
 
-#Vaccines
+##Vaccines
 df_cov['FirstVaccine_perc'] = df_cov['cumPeopleVaccinatedFirstDoseByVaccinationDate']/8982000*100
 df_cov['SecVaccine_perc'] = df_cov['cumPeopleVaccinatedSecondDoseByVaccinationDate']/8982000*100
 
@@ -78,7 +69,7 @@ plt.ylabel('Population London (%)')
 
 plt.show()
 
-#Testing
+##Testing
 fig, ax = plt.subplots()
 ax2 = ax.twinx()
 ax2.plot('datetime', 'uniqueCasePositivityBySpecimenDateRollingSum', data=df_cov[:621], color='lightgreen', label = "Test positivity")
@@ -98,7 +89,6 @@ ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
 # Format the coords message box, i.e. the numbers displayed as the cursor moves
 # across the axes within the interactive GUI.
 ax.format_xdata = mdates.DateFormatter('%Y-%m')
-#ax.format_ydata = lambda x: f'${x:.2f}'  # Format the price.
 ax.grid(True)
 
 ax.set_xlabel('Date')
@@ -111,8 +101,7 @@ fig.autofmt_xdate()
 
 plt.show()
 
-#######
-#Deaths
+##Deaths
 df_cov['datetime'] = pd.to_datetime(df_cov['Date'])
 
 fig, ax = plt.subplots()
@@ -141,9 +130,7 @@ ax2.set_ylabel('Deaths cumulated', color='grey')
 fig.autofmt_xdate()
 plt.show()
 
-#######
-#Healthcare
-
+##Healthcare
 fig, ax = plt.subplots()
 ax.plot('datetime', 'newAdmissions', data=df_cov, color='pink', label = "Admissions")
 ax.plot('datetime', 'hospitalCases', data=df_cov, color= 'purple', label = "Hospital cases")
@@ -172,6 +159,5 @@ fig.autofmt_xdate()
 plt.legend()
 plt.xlabel('Date')
 plt.ylabel('Patients')
-
 plt.show()
 
