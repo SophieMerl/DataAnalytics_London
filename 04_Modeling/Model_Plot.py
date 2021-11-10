@@ -44,4 +44,6 @@ for epoch in range(n_epochs):
         b -= lr * b.grad
     a.grad.zero_()
     b.grad.zero_()
-make_dot(loss).render("rnn_torchviz", format="png")  # , params=dict(list(model.named_parameters()))
+make_dot(yhat).render("yhat_torchviz", format="png")
+make_dot(error).render("error_torchviz", format="png")
+make_dot(loss).render("loss_torchviz", format="png")   # , params=dict(list(model.named_parameters()))
