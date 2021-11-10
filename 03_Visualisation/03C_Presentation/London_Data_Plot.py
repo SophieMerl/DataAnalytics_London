@@ -1,8 +1,10 @@
 import pandas as pd
+import numpy as np
 import io
 import requests
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from matplotlib.pyplot import cm
 
 # receiving travel data & formating date
 url_lnd = "https://raw.githubusercontent.com/SophieMerl/DataAnaytics_London/master/02_Preprocessing/London_cleaned_unpivoted.csv"
@@ -27,11 +29,14 @@ for brh_id in df_brh["id"]:
 # plotting one plot for each category with a line for every single borough
 # for detailed explanation of plt & ax functions look into file "Covid_Data_Plot"
 for category in category_list:
+    color = iter(cm.rainbow(np.linspace(0, 1, 33)))
     fig, ax = plt.subplots()
     for brh_id in df_brh["id"]:
+        clr = next(color)
         ax.plot(df_list[brh_id - 1]["Date"], df_list[brh_id - 1][category],
-                color="black",
-                label=str(df_brh.loc[df_brh["id"] == brh_id]["name"]))
+                color=clr,
+                label=str(df_brh.loc[df_brh["id"] == brh_id]["name"]),
+                linewidth=0.4)
     fmt_half_year = mdates.MonthLocator(interval=3)
     ax.xaxis.set_major_locator(fmt_half_year)
     fmt_month = mdates.MonthLocator()
