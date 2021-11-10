@@ -28,83 +28,125 @@ df_cvd = pd.read_csv(io.StringIO(download_cvd.decode('utf-8')))
 df_cvd["Date"] = pd.to_datetime(df_cvd["Date"])
 df_cvd["newDeaths28DaysByDeathDate"] = df_cvd["newDeaths28DaysByDeathDate"].rolling(min_periods=1, window=14).sum()
 
-# Training Data is 80% of the data
-x_train = torch.tensor(df_cvd["newDeaths28DaysByDeathDate"][:int(len(df_cvd["newDeaths28DaysByDeathDate"]) * 0.8)].values).float().to(device)
-x_test = torch.tensor(df_cvd["newDeaths28DaysByDeathDate"][int(len(df_cvd["newDeaths28DaysByDeathDate"]) * 0.8):].values).float().to(device)
 
-y_train = torch.tensor(df_lnd_grouped["retail_recreation"][:int(len(df_lnd_grouped["retail_recreation"]) * 0.8)].values).float().to(device)
-y_test = torch.tensor(df_lnd_grouped["retail_recreation"][int(len(df_lnd_grouped["retail_recreation"]) * 0.8):].values).float().to(device)
-
-# utilizing pytorch's conventions & initializing the observed log relationship
+# utilizing pytorch's conventions & initializing the observed log relationship as model
 class LogCorModel(nn.Module):
     def __init__(self):
         super().__init__()
         self.a = nn.Parameter(torch.randn(1, requires_grad=True, dtype=torch.float))
         self.b = nn.Parameter(torch.randn(1, requires_grad=True, dtype=torch.float))
-
     def forward(self, x):
         return self.a + self.b * np.log(x)
 
 
-# initializing the model and choosing various important parameters
-model = LogCorModel().to(device)
+def train_model(model, lr, x_train, y_train):
+    optimizer = optim.SGD(model.parameters(), lr=lr)
+    # i recon here is space for improvement. MSE is the most classic and thus basic loss function
+    loss_fn = nn.MSELoss(reduction='mean')
+    n_epochs = 1000
+    # training the model
+    for epoch in range(n_epochs):
+        model.train()
+        yhat = model(x_train)
+        loss = loss_fn(y_train, yhat)
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad()
+    # printing the to computed paramters a and b of trained model
+    print(model.state_dict())
+
+
+def plot_model(model, category, x_data, y_data, log):
+    # log can either be one or zero
+    fig, ax = plt.subplots()
+    with torch.no_grad():
+        predictions = model(df_cvd["newDeaths28DaysByDeathDate"].values)
+    if log == 1:
+        x_data = np.log(x_data)
+        plt.xlabel("Log of Covid-Deaths (rolling sum over 14 days)")
+    elif log == 0:
+        plt.xlabel("Covid-Deaths (rolling sum over 14 days)")
+    else:
+        raise Exception("Log input has to be eiteher 0 or 1")
+    ax.scatter(x_data, y_data,
+               marker=".",
+               color="black",
+               label="Real Data")
+    ax.plot(x_data, predictions,
+            color="red",
+            label="Model Predictions")
+    ax.grid(True)
+    plt.xlim(xmin=0)
+    plt.ylabel("Amount Traveled (%)")
+    plt.legend(loc='best')
+    plt.title(str(category))
+
+
+# training Data is 80% of the data, x data stays the same since we are only using deaths as an independet variable
+x_train = torch.tensor(df_cvd["newDeaths28DaysByDeathDate"][:int(len(df_cvd["newDeaths28DaysByDeathDate"]) * 0.8)].values).float().to(device)
+x_test = torch.tensor(df_cvd["newDeaths28DaysByDeathDate"][int(len(df_cvd["newDeaths28DaysByDeathDate"]) * 0.8):].values).float().to(device)
+
+# the 6 categorys of the travel data set & storing all y data in dictionarys
+category_list = ["retail_recreation", "grocery_pharmacy", "parks", "transit", "workplaces", "residential"]
+dic_y_train = {}
+dic_y_test = {}
+for category in category_list:
+    temp_y_train = torch.tensor(df_lnd_grouped[category][:int(len(df_lnd_grouped[category]) * 0.8)].values).float().to(device)
+    temp_y_test = torch.tensor(df_lnd_grouped[category][int(len(df_lnd_grouped[category]) * 0.8):].values).float().to(device)
+    dic_y_train[category] = temp_y_train
+    dic_y_test[category] = temp_y_test
+
+# RETAIL RECREATION
+# initializing the model
+model_retail_recreation = LogCorModel().to(device)
+# atm we are using a constant LR, I think one improvement here would be to use a dynamic one
 lr = 3e-2
-optimizer = optim.SGD(model.parameters(), lr=lr)
-loss_fn = nn.MSELoss(reduction='mean')
-n_epochs = 1000
+train_model(model_retail_recreation, lr, x_train, dic_y_train["retail_recreation"])
+plot_model(model_retail_recreation, "retail_recreation", df_cvd["newDeaths28DaysByDeathDate"], df_lnd_grouped["retail_recreation"], 1)
+plot_model(model_retail_recreation, "retail_recreation", df_cvd["newDeaths28DaysByDeathDate"], df_lnd_grouped["retail_recreation"], 0)
+# plt.show()
 
-# training the model
-for epoch in range(n_epochs):
-    model.train()
-    yhat = model(x_train)
-    loss = loss_fn(y_train, yhat)
-    loss.backward()
-    optimizer.step()
-    optimizer.zero_grad()
+# GROCERY PHARMACY
+# initializing the model
+model_grocery_pharmacy = LogCorModel().to(device)
+# atm we are using a constant LR, I think one improvement here would be to use a dynamic one
+lr = 3e-2
+train_model(model_grocery_pharmacy, lr, x_train, dic_y_train["grocery_pharmacy"])
+plot_model(model_grocery_pharmacy, "grocery_pharmacy", df_cvd["newDeaths28DaysByDeathDate"], df_lnd_grouped["grocery_pharmacy"], 0)
+# plt.show()
 
-# printing the to computed paramters a and b of trained model
-print(model.state_dict())
+# PARKS
+# initializing the model
+model_parks = LogCorModel().to(device)
+# atm we are using a constant LR, I think one improvement here would be to use a dynamic one
+lr = 3e-2
+train_model(model_parks, lr, x_train, dic_y_train["parks"])
+plot_model(model_parks, "parks", df_cvd["newDeaths28DaysByDeathDate"], df_lnd_grouped["parks"], 0)
+# plt.show()
 
-# a = torch.randn(1, requires_grad=True, dtype=torch.float, device=device)
-# b = torch.randn(1, requires_grad=True, dtype=torch.float, device=device)
-# n_epochs = 1000
-# lr = 3e-2
+# TRANSIT
+# initializing the model
+model_transit = LogCorModel().to(device)
+# atm we are using a constant LR, I think one improvement here would be to use a dynamic one
+lr = 3e-2
+train_model(model_transit, lr, x_train, dic_y_train["transit"])
+plot_model(model_transit, "transit", df_cvd["newDeaths28DaysByDeathDate"], df_lnd_grouped["transit"], 0)
+# plt.show()
 
-# for epoch in range(n_epochs):
-#     yhat = a + b * x_train
-#     error = y_train - yhat
-#     loss = (error ** 2).mean()
-#     loss.backward()
-#     with torch.no_grad():
-#         a -= lr * a.grad
-#         b -= lr * b.grad
-#     a.grad.zero_()
-#     b.grad.zero_()
+# WORKPLACES
+# initializing the model
+model_workplaces = LogCorModel().to(device)
+# atm we are using a constant LR, I think one improvement here would be to use a dynamic one
+lr = 3e-2
+train_model(model_workplaces, lr, x_train, dic_y_train["workplaces"])
+plot_model(model_workplaces, "workplaces", df_cvd["newDeaths28DaysByDeathDate"], df_lnd_grouped["workplaces"], 0)
+# plt.show()
 
-# double checking with SKlearn package
-linr = LinearRegression()
-linr.fit(np.log(df_cvd["newDeaths28DaysByDeathDate"])[:int(len(df_cvd["newDeaths28DaysByDeathDate"]) * 0.8)].to_numpy().reshape(-1, 1), df_lnd_grouped["retail_recreation"][:int(len(df_lnd_grouped["retail_recreation"]) * 0.8)].to_numpy().reshape(-1, 1),)
-print(linr.intercept_, linr.coef_[0])
-make_dot(loss, params=dict(list(model.named_parameters()))).render("rnn_torchviz", format="png")
-
-# plotting the data with model prediction
-plt.figure(figsize=(16, 5))
-plt.style.use("ggplot")
-ax = plt.axes()
-ax.scatter(np.log(df_cvd["newDeaths28DaysByDeathDate"]), df_lnd_grouped["retail_recreation"],  # df_list.index(df)
-           marker="o",
-           color="black")
-ax.plot(np.log(df_cvd["newDeaths28DaysByDeathDate"]), linr.predict(np.log(df_cvd["newDeaths28DaysByDeathDate"]).to_numpy().reshape(-1, 1)),
-        color="red",
-        label="Model Predictions")
-# ax.plot(df_cvd["newDeaths28DaysByDeathDate"], model(torch.tensor(df_cvd["newDeaths28DaysByDeathDate"].values).detach().numpy()),
-# ax.plot(df_cvd["newDeaths28DaysByDeathDate"], model(df_cvd["newDeaths28DaysByDeathDate"].values),
-#         color="green",
-#         label="Model Predictions")
-plt.xlabel("Log of deaths of past 14 days")
-plt.xlim(xmin=0)
-plt.ylabel("Amount Traveled")
-plt.title("retail_recreation")
+# RESIDENTIAL
+# initializing the model
+model_residential = LogCorModel().to(device)
+# atm we are using a constant LR, I think one improvement here would be to use a dynamic one
+lr = 3e-2
+train_model(model_residential, lr, x_train, dic_y_train["residential"])
+plot_model(model_residential, "residential", df_cvd["newDeaths28DaysByDeathDate"], df_lnd_grouped["residential"], 0)
 plt.show()
-
-print(model.parameters())
