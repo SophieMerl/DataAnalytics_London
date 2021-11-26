@@ -62,4 +62,19 @@ for category in category_list:
     plt.xlim(xmin=0)
     plt.ylabel("Amount Traveled (%)")
     plt.title(category_list[category_list.index(category)])
+# plt.show()
+
+# plotting: in log space: death cases as independent and travel data as dependent variable
+# note: travel data can be up to -100 (not exactly -100 though) thus we need to add 100 before computing the log
+for category in category_list:
+    fig, ax = plt.subplots()
+    ax.scatter(np.log(df_cvd["newDeaths28DaysByDeathDate"]), np.log(df_lnd_grouped[category_list[category_list.index(category)]] + 100),
+               marker=".",
+               color="black",
+               label=str(category) + " in relation to log deaths")
+    ax.grid(True)
+    plt.xlabel("Log of Covid-Deaths (rolling sum over 14 days)")
+    plt.xlim(xmin=0)
+    plt.ylabel("Amount Traveled (%)")
+    plt.title(category_list[category_list.index(category)])
 plt.show()
