@@ -75,6 +75,6 @@ for category in category_list:
     ax.grid(True)
     plt.xlabel("Log of Covid-Deaths (rolling sum over 14 days)")
     plt.xlim(xmin=0)
-    plt.ylabel("Amount Traveled (%)")
+    plt.ylabel("Log of Amount Traveled (%)")
     plt.title(category_list[category_list.index(category)])
 plt.show()

@@ -59,16 +59,20 @@ def train_model(model, lr, x_train, y_train):
     print(model.state_dict())
 
 
-def plot_model(model, category, x_data, y_data):
+def plot_model(model, category):
     # we are plotting in log log space
     fig, ax = plt.subplots()
     with torch.no_grad():
         predictions = model(df_cvd_log["newDeaths28DaysByDeathDate"].values)
-    ax.scatter(x_data, y_data,
+    ax.scatter(x_train, dic_y_train[category],
                marker=".",
                color="black",
-               label="Real Data")
-    ax.plot(x_data, predictions,
+               label="Real Data (Train)")
+    ax.scatter(x_test, dic_y_test[category],
+               marker=".",
+               color="green",
+               label="Real Data (Test)")
+    ax.plot(df_cvd_log["newDeaths28DaysByDeathDate"], predictions,
             color="red",
             label="Model Predictions")
     ax.grid(True)
@@ -99,8 +103,7 @@ model_retail_recreation = LinRegModel().to(device)
 # atm we are using a constant LR, I think one improvement here would be to use a dynamic one
 lr = 3e-2
 train_model(model_retail_recreation, lr, x_train, dic_y_train["retail_recreation"])
-plot_model(model_retail_recreation, "retail_recreation", df_cvd_log["newDeaths28DaysByDeathDate"], df_lnd_grouped_log["retail_recreation"])
-plot_model(model_retail_recreation, "retail_recreation", df_cvd_log["newDeaths28DaysByDeathDate"], df_lnd_grouped_log["retail_recreation"])
+plot_model(model_retail_recreation, "retail_recreation")
 # plt.show()
 
 # GROCERY PHARMACY
@@ -109,7 +112,7 @@ model_grocery_pharmacy = LinRegModel().to(device)
 # atm we are using a constant LR, I think one improvement here would be to use a dynamic one
 lr = 3e-2
 train_model(model_grocery_pharmacy, lr, x_train, dic_y_train["grocery_pharmacy"])
-plot_model(model_grocery_pharmacy, "grocery_pharmacy", df_cvd_log["newDeaths28DaysByDeathDate"], df_lnd_grouped_log["grocery_pharmacy"])
+plot_model(model_grocery_pharmacy, "grocery_pharmacy")
 # plt.show()
 
 # PARKS
@@ -118,7 +121,7 @@ model_parks = LinRegModel().to(device)
 # atm we are using a constant LR, I think one improvement here would be to use a dynamic one
 lr = 3e-2
 train_model(model_parks, lr, x_train, dic_y_train["parks"])
-plot_model(model_parks, "parks", df_cvd_log["newDeaths28DaysByDeathDate"], df_lnd_grouped_log["parks"])
+plot_model(model_parks, "parks")
 # plt.show()
 
 # TRANSIT
@@ -127,7 +130,7 @@ model_transit = LinRegModel().to(device)
 # atm we are using a constant LR, I think one improvement here would be to use a dynamic one
 lr = 3e-2
 train_model(model_transit, lr, x_train, dic_y_train["transit"])
-plot_model(model_transit, "transit", df_cvd_log["newDeaths28DaysByDeathDate"], df_lnd_grouped_log["transit"])
+plot_model(model_transit, "transit")
 # plt.show()
 
 # WORKPLACES
@@ -136,7 +139,7 @@ model_workplaces = LinRegModel().to(device)
 # atm we are using a constant LR, I think one improvement here would be to use a dynamic one
 lr = 3e-2
 train_model(model_workplaces, lr, x_train, dic_y_train["workplaces"])
-plot_model(model_workplaces, "workplaces", df_cvd_log["newDeaths28DaysByDeathDate"], df_lnd_grouped_log["workplaces"])
+plot_model(model_workplaces, "workplaces")
 # plt.show()
 
 # RESIDENTIAL
@@ -145,5 +148,16 @@ model_residential = LinRegModel().to(device)
 # atm we are using a constant LR, I think one improvement here would be to use a dynamic one
 lr = 3e-2
 train_model(model_residential, lr, x_train, dic_y_train["residential"])
-plot_model(model_residential, "residential", df_cvd_log["newDeaths28DaysByDeathDate"], df_lnd_grouped_log["residential"])
+plot_model(model_residential, "residential")
+# plt.show()
+
+data = []
+for category in category_list:
+    temp_list = []
+    temp_list.append(category)
+    temp_list.append(np.corrcoef(x_train, dic_y_train[category])[0, 1])
+    temp_list.append(np.corrcoef(x_test, dic_y_test[category])[0, 1])
+    data.append(temp_list)
+R_df = pd.DataFrame(data, columns=["Category", "R^2 Train", "R^2 Test"])
+
 plt.show()
